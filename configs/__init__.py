@@ -6,7 +6,7 @@ import os
 int_variables = ['PORT']
 
 __config = {
-    **dotenv_values(".env"),
+    **dotenv_values("dev.env"),
     **os.environ
 }
 

@@ -3,11 +3,16 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from mongoengine import connect as connect_mongo, disconnect as diconnect_mongo
+from mongoengine import connect as connect_mongo
+from mongoengine import disconnect as diconnect_mongo
 
 from configs import get_config
-from routes import HeartbeatRoute, UserRoute, EnviromentRoute
-from services.logging import Logger
+from routes import DeviceRoute, EnviromentRoute, HeartbeatRoute, UserRoute
+
+from services.logging import LOGGER
+from services.mqtt import MQTT
+
+MONGODB_URI = get_config("MONGODB_URI")
 
 app = FastAPI()
 
@@ -26,23 +31,22 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def connect_thirdparties():
-    MONGODB_URI = get_config("MONGODB_URI")
     connect_mongo(host=MONGODB_URI)
-    Logger.info(f"[THIRD_PARITES]: MongoDB is connected | URI = {MONGODB_URI}")
+    LOGGER.info(f"[MongoDB]: Connecting to {MONGODB_URI}")
+
+    MQTT.connect_async(
+        host=get_config("MQTT_HOST"),
+        port=get_config("MQTT_PORT"),
+        keepalive=get_config("MQTT_KEEPALIVE")
+    )
+    MQTT.loop_start()
 
 
 @app.on_event("shutdown")
 async def disconnect_thirdparties():
     diconnect_mongo()
-    Logger.info("[THIRD_PARITES]: MongoDB is disconnected")
-
-
-@app.exception_handler(Exception)
-async def handle_exception(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=jsonable_encoder({"errors": exc}),
-    )
+    LOGGER.info("[MongoDB]: Disconnected")
+    MQTT.disconnect()
 
 
 @app.exception_handler(HTTPException)
@@ -53,12 +57,23 @@ async def handle_http_exception(request: Request, exc: HTTPException):
     )
 
 
+@app.exception_handler(RequestValidationError)
 async def handle_validation_exception(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=jsonable_encoder({"errors": exc.errors()}),
     )
 
+
+@app.exception_handler(Exception)
+async def handle_exception(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content=jsonable_encoder({"errors": exc}),
+    )
+
+
 app.include_router(HeartbeatRoute.router)
 app.include_router(UserRoute.router)
 app.include_router(EnviromentRoute.router)
+app.include_router(DeviceRoute.router)

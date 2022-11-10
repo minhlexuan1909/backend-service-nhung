@@ -1,3 +1,5 @@
+from typing import List
+
 from mongoengine import Document
 
 
@@ -6,11 +8,12 @@ class BaseModel(Document):
         'abstract': True,
     }
 
-    def to_dict(self, *exclude_fields):
+    def to_dict(self, exclude_fields=[]):
         dict_model = super().to_mongo().to_dict()
         dict_model['_id'] = str(dict_model['_id'])
-        del dict_model['_cls']
+        dict_model.pop('_cls', None)
         
-        for field in exclude_fields:
-            del dict_model[field]
+        for field in ['_cls'] + exclude_fields:
+            dict_model.pop(field, None)
+            
         return dict_model

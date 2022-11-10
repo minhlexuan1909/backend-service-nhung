@@ -1,9 +1,8 @@
 from dotenv import dotenv_values
 from typing import Any
-from errors import ConfigNotFound
 import os
 
-int_variables = ['PORT']
+int_variables = ["PORT", "MQTT_PORT", "MQTT_KEEPALIVE"]
 
 __config = {
     **dotenv_values("dev.env"),

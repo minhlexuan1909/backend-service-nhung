@@ -10,5 +10,5 @@ logging.basicConfig(
     handlers=[RichHandler()]
 )
 
-Logger = logging.getLogger('main')
-Logger.setLevel(logging.DEBUG)
+LOGGER = logging.getLogger('main')
+LOGGER.setLevel(logging.DEBUG)

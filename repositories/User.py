@@ -8,3 +8,7 @@ def create(doc: CreateUser):
         username=doc.username, 
         password=doc.password
     ).save()
+
+
+def find_by_username(username: str):
+    return User.objects(username=username).only('password').first()

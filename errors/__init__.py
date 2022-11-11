@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 
+
 class UserExistedException(HTTPException):
     def __init__(self) -> None:
         super().__init__(
@@ -25,5 +26,24 @@ class DeviceNotFound(HTTPException):
             status_code=status.HTTP_404_NOT_FOUND, 
             detail={
                 "message": "Device not found"
+            }
+        )
+
+class QueueFullException(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail={
+                "message": "Queue is full"
+            }
+        )
+
+class InvervalServerError(HTTPException):
+    def __init__(self, message=None) -> None:
+        message = message if message != None else "Interval Server Error"
+        super().__init__(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail={
+                "message": message
             }
         )

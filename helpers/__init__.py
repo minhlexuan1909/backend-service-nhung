@@ -1,5 +1,4 @@
 import datetime as dt
-from enum import Enum
 from typing import Dict, Any
 
 from passlib.hash import bcrypt

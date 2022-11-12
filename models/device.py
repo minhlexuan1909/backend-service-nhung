@@ -11,23 +11,28 @@ class DeviceMode(Enum):
     AUTO = "auto"
     SCHEDULE = "schedule"
 
+
 class DeviceStatus(Enum):
     ON = "on"
     OFF = "off"
 
+
 class Device(BaseModel):
     name = StringField(max_length=100, required=True)
     mode = EnumField(
-        enum=DeviceMode, 
-        default="mannual"
+        enum=DeviceMode,
+        default=DeviceMode.MANUAL,
+        required=True
     )
     status = EnumField(
-        enum=DeviceStatus, 
-        default="off"
+        enum=DeviceStatus,
+        default=DeviceStatus.OFF,
+        required=True
     )
+    crontab = StringField(max_length=10, default=None)
     created_at = DateTimeField(default=now)
     updated_at = DateTimeField(default=now)
-    
+
     meta = {
         "collection": "devices",
         "indexes": ["#name"]

@@ -12,8 +12,6 @@ from routes import DeviceRoute, EnviromentRoute, HeartbeatRoute, UserRoute
 from services.logging import LOGGER
 from services.mqtt import MQTT
 
-MONGODB_URI = get_config("MONGODB_URI")
-
 app = FastAPI()
 
 origins = [
@@ -31,13 +29,19 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def connect_thirdparties():
-    connect_mongo(host=MONGODB_URI)
-    LOGGER.info(f"[MongoDB]: Connecting to {MONGODB_URI}")
+    MONGODB_URI = get_config("MONGODB_URI")
+    MQTT_HOST = get_config("MQTT_HOST")
+    MQTT_PORT = get_config("MQTT_PORT")
+    MQTT_KEEPALIVE = get_config("MQTT_KEEPALIVE")
 
+    LOGGER.info(f"[MongoDB]: Connecting to {MONGODB_URI}")
+    connect_mongo(host=MONGODB_URI)
+
+    LOGGER.info(f"[MQTT]: Connecting to {MQTT_HOST} on port {MQTT_PORT}")
     MQTT.connect_async(
-        host=get_config("MQTT_HOST"),
-        port=get_config("MQTT_PORT"),
-        keepalive=get_config("MQTT_KEEPALIVE")
+        host=MQTT_HOST,
+        port=MQTT_PORT,
+        keepalive=MQTT_KEEPALIVE,
     )
     MQTT.loop_start()
 

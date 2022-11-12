@@ -1,5 +1,5 @@
 from models.device import Device
-from schemas.device import SetStatusPayLoad, SetModePayload
+from schemas.device import SetStatusPayLoad, SetModePayload, CreateDevice
 from helpers import now
 from errors import DeviceNotFound
 
@@ -24,3 +24,12 @@ def update_mode(id: str, args: SetModePayload):
     device.updated_at = now()
     return device.save()
 
+
+def find_all():
+    return Device.objects()
+
+
+def create(doc: CreateDevice):
+    return Device(
+        name=doc.name
+    ).save()

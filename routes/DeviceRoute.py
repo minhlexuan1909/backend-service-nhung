@@ -10,7 +10,7 @@ router = APIRouter(prefix="/devices")
 
 @router.put("/{device_id}/status")
 async def set_status(device_id: str, payload: SetStatusPayLoad, api_key: APIKeyHeader = Depends(ApiKey)):
-    return Device.set_status(device_id, payload)
+    return Device.set_status(device_id, payload.status)
 
 
 @router.put("/{device_id}/mode")

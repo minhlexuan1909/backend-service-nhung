@@ -7,5 +7,5 @@ MQTT = {
         'BAD_USERNAME_OR_PASSWORD': 4,
         'UNAUTHORIZED': 5
     },
-    'TIMEOUT': 3 # 3s
+    'TIMEOUT': 3  # 3s
 }

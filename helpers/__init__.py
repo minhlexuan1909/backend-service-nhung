@@ -1,6 +1,7 @@
 import datetime as dt
-from typing import Dict, Any
+from typing import Any, Dict, Union
 
+from croniter import croniter
 from passlib.hash import bcrypt
 
 
@@ -18,7 +19,7 @@ def now():
 
 def parse_enviroment_capture(raw: str) -> Dict[str, float]:
     enviroment: Dict[str, float] = {}
-    
+
     features = raw.split("|")
 
     for feature in features:
@@ -28,9 +29,13 @@ def parse_enviroment_capture(raw: str) -> Dict[str, float]:
 
     return enviroment
 
+
 def generate_mqtt_payload(data: Dict[str, Any]) -> str:
     features = []
     for [key, value] in data.items():
         features.append(f"{key}={value}")
     return "|".join(features)
-    
+
+
+def is_valid_cron(cron: Union[None, str]):
+    return False if cron == None else croniter.is_valid(cron)

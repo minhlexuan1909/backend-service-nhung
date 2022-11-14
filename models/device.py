@@ -1,18 +1,18 @@
 from enum import Enum
 
-from mongoengine import DateTimeField, EnumField, StringField
+from mongoengine import DateTimeField, EnumField, StringField, IntField
 
 from helpers import now
 from models.basemodel import BaseModel
 
 
-class DeviceMode(Enum):
+class DeviceMode(str, Enum):
     MANUAL = "manual"
     AUTO = "auto"
     SCHEDULE = "schedule"
 
 
-class DeviceStatus(Enum):
+class DeviceStatus(str, Enum):
     ON = "on"
     OFF = "off"
 
@@ -29,7 +29,8 @@ class Device(BaseModel):
         default=DeviceStatus.OFF,
         required=True
     )
-    crontab = StringField(max_length=10, default=None)
+    cron = StringField(max_length=50, null=True, default=None)
+    duration = IntField(min_value=1, null=True, default=None)
     created_at = DateTimeField(default=now)
     updated_at = DateTimeField(default=now)
 

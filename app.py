@@ -8,7 +8,6 @@ from mongoengine import disconnect as diconnect_mongo
 
 from configs import get_config
 from routes import DeviceRoute, EnviromentRoute, HeartbeatRoute, UserRoute
-
 from services.logging import LOGGER
 from services.mqtt import MQTT
 
@@ -54,26 +53,27 @@ async def disconnect_thirdparties():
 
 
 @app.exception_handler(HTTPException)
-async def handle_http_exception(request: Request, exc: HTTPException):
+async def handle_http_exception(request: Request, exception: HTTPException):
     return JSONResponse(
-        status_code=exc.status_code,
-        content=jsonable_encoder(exc.detail),
+        status_code=exception.status_code,
+        content=jsonable_encoder(exception.detail),
     )
 
 
 @app.exception_handler(RequestValidationError)
-async def handle_validation_exception(request: Request, exc: RequestValidationError):
+async def handle_validation_exception(request: Request, error: RequestValidationError):
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder({"errors": exc.errors()}),
+        content=jsonable_encoder({"errors": error.errors()}),
     )
 
 
 @app.exception_handler(Exception)
-async def handle_exception(request: Request, exc: Exception):
+async def handle_exception(request: Request, exception: Exception):
+    LOGGER.error("[EXCEPTION]: Error when handling request | Reason:", exception.__str__())
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=jsonable_encoder({"errors": exc}),
+        content=jsonable_encoder({"message": exception.__str__()}),
     )
 
 

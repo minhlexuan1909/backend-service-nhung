@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Union, List
+from typing import Union
 import datetime as dt
 
 
@@ -9,6 +9,8 @@ class SetStatusPayLoad(BaseModel):
 
 class SetModePayload(BaseModel):
     mode: str
+    cron: Union[str, None] = None
+    duration: Union[int, None] = None
 
 
 class UpdateArgs(BaseModel):

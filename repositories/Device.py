@@ -1,35 +1,41 @@
 from models.device import Device
-from schemas.device import SetStatusPayLoad, SetModePayload, CreateDevice
 from helpers import now
 from errors import DeviceNotFound
+from typing import Any, Dict, List
 
 
-def find_by_id(id: str):
+def find_by_id(id: str) -> Device:
     device = Device.objects(id=id).first()
     if device == None:
         raise DeviceNotFound()
     return device
 
 
-def update_status(id: str, args: SetStatusPayLoad):
-    device = find_by_id(id)
-    device.status = args.status
-    device.updated_at = now()
+def find_one_and_update(filter: Dict[str, Any], update_values: Dict[str, Any]) -> Device:
+    device = find_one(filter)
+    for [key, value] in update_values.items():
+        device[key] = value
+    device["updated_at"] = now()
     return device.save()
 
 
-def update_mode(id: str, args: SetModePayload):
-    device = find_by_id(id)
-    device.mode = args.mode
-    device.updated_at = now()
-    return device.save()
+def find(filter: Dict[str, Any], limit=None, skip=None) -> List[Device]:
+    return Device.objects(**filter).skip(skip).limit(limit)
 
 
-def find_all():
-    return Device.objects()
+def find_one(filter: Dict[str, Any]) -> Device:
+    device = Device.objects(**filter).first()
+    if device == None:
+        raise DeviceNotFound()
+    return device
 
 
-def create(doc: CreateDevice):
-    return Device(
-        name=doc.name
-    ).save()
+def update(doc: Device, update_values: Dict[str, Any]) -> Device:
+    for [key, value] in update_values.items():
+        doc[key] = value
+    doc["updated_at"] = now()
+    return doc.save()
+
+
+def create(doc: Dict[str, Any]) -> Device:
+    return Device(**doc).save()

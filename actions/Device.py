@@ -52,6 +52,9 @@ def set_mode(device_id: str, payload: SetModePayload):
     valid_cron = is_valid_cron(payload.cron)
 
     if is_schedule:
+        if payload.cron == None and payload.duration == None:
+            return {"mode": "schedule"}
+
         if not valid_cron or payload.duration == None:
             raise BadRequest("Cron is not valid")
         scheduler.delete(device_id)

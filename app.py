@@ -10,6 +10,7 @@ from configs import get_config
 from routes import DeviceRoute, EnviromentRoute, HeartbeatRoute, UserRoute
 from services.logging import LOGGER
 from services.mqtt import MQTT
+from services.model import init_knn_model
 
 app = FastAPI()
 
@@ -32,6 +33,9 @@ async def connect_thirdparties():
     MQTT_HOST = get_config("MQTT_HOST")
     MQTT_PORT = get_config("MQTT_PORT")
     MQTT_KEEPALIVE = get_config("MQTT_KEEPALIVE")
+
+    LOGGER.info(f"[KNN]: Init model")
+    init_knn_model()
 
     LOGGER.info(f"[MongoDB]: Connecting to {MONGODB_URI}")
     connect_mongo(host=MONGODB_URI)
@@ -70,7 +74,7 @@ async def handle_validation_exception(request: Request, error: RequestValidation
 
 @app.exception_handler(Exception)
 async def handle_exception(request: Request, exception: Exception):
-    LOGGER.error("[EXCEPTION]: Error when handling request | Reason:", exception.__str__())
+    LOGGER.error(f"[EXCEPTION]: Error when handling request | Reason: {exception.__str__()}")
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=jsonable_encoder({"message": exception.__str__()}),

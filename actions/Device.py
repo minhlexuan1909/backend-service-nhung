@@ -1,28 +1,31 @@
+from typing import Union
+
 from constants import MQTT as MQTT_CONSTANTS
 from errors import (BadRequest, ConflictException, InvervalServerError,
                     QueueFullException)
 from helpers import generate_mqtt_payload, is_valid_cron
-from models.device import DeviceMode
+from models.device import Device as DeviceModel
+from models.device import DeviceMode, DeviceStatus
 from repositories import Device
 from schemas.device import CreateDevice, SetModePayload
+from services import scheduler
 from services.logging import LOGGER
 from services.mqtt import MQTT
-from services import scheduler
 
 TIMEOUT = MQTT_CONSTANTS["TIMEOUT"]
 
 
-def set_status(device_id: str, status: str, must_be_manual=True):
+def set_status(device: Union[str, DeviceModel], status: str, must_be_manual=True):
     try:
-        device = Device.find_by_id(device_id)
+        entity = device if isinstance(device, DeviceModel) else Device.find_by_id(device)
 
-        if must_be_manual and device["mode"] != DeviceMode.MANUAL:
+        if must_be_manual and entity["mode"] != DeviceMode.MANUAL:
             raise ConflictException("Cannot set status of device not in manual mode")
-        if device["status"] == status:
+        if entity["status"] == status:
             raise ConflictException(f"Device's status has been already {status}")
 
         mqtt_payload = generate_mqtt_payload({
-            "device_id": device_id,
+            "device_id": entity["id"],
             "status": status
         })
 
@@ -31,7 +34,7 @@ def set_status(device_id: str, status: str, must_be_manual=True):
         publish = MQTT.publish("device/update-status", payload=mqtt_payload)
         publish.wait_for_publish(TIMEOUT)
 
-        device = Device.update(device, {"status": status})
+        device = Device.update(entity, {"status": status})
         return device.to_dict()
     except ValueError as error:
         LOGGER.error("[MQTT]: Queue is full", error)

@@ -3,11 +3,12 @@ from helpers import parse_enviroment_capture
 from models.device import DeviceMode, DeviceStatus
 from repositories import Device, Enviroment
 from services.model import can_turn_on_light, can_turn_on_pump
+from services.cache import CACHE
 
 
 def capture(raw_payload: str):
     enviroment = parse_enviroment_capture(raw_payload)
-
+    CACHE.set("enviroment:latest", enviroment)
     pump = Device.find_one({"name": "Pump"})
     light = Device.find_one({"name": "Light"})
 
@@ -23,3 +24,7 @@ def capture(raw_payload: str):
             DeviceAction.set_status(light, status, must_be_manual=False)
 
     return Enviroment.create(enviroment)
+
+
+def get_latest_capture():
+    return CACHE.get("enviroment:latest", {})

@@ -33,7 +33,9 @@ async def connect_thirdparties():
     MQTT_HOST = get_config("MQTT_HOST")
     MQTT_PORT = get_config("MQTT_PORT")
     MQTT_KEEPALIVE = get_config("MQTT_KEEPALIVE")
+    TIME_ZONE = get_config("TZ")
 
+    LOGGER.info(f"[TIME_ZONE]: Current time zone is {TIME_ZONE}")
     LOGGER.info(f"[KNN]: Init model")
     init_knn_model()
 

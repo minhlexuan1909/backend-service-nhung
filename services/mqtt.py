@@ -12,13 +12,6 @@ MQTT_TSL = get_config("MQTT_TSL")
 MQTT = Client(protocol=MQTTv5)
 
 MQTT.disable_logger()
-MQTT.username_pw_set(
-    username=get_config("MQTT_USERNAME"),
-    password=get_config("MQTT_PASSWORD")
-)
-if MQTT_TSL:
-    MQTT.tls_set_context()
-
 
 @MQTT.connect_callback()
 def on_connect(client: Client, userdata, flags_dict, reason, properties):

@@ -10,7 +10,6 @@ from configs import get_config
 from routes import DeviceRoute, EnviromentRoute, HeartbeatRoute, UserRoute
 from services.logging import LOGGER
 from services.mqtt import MQTT
-from services.model import init_knn_model
 
 app = FastAPI()
 
@@ -36,8 +35,6 @@ async def connect_thirdparties():
     TIME_ZONE = get_config("TZ")
 
     LOGGER.info(f"[TIME_ZONE]: Current time zone is {TIME_ZONE}")
-    LOGGER.info(f"[KNN]: Init model")
-    init_knn_model()
 
     LOGGER.info(f"[MongoDB]: Connecting to {MONGODB_URI}")
     connect_mongo(host=MONGODB_URI)

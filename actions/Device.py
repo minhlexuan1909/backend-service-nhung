@@ -5,7 +5,7 @@ from errors import (BadRequest, ConflictException, InvervalServerError,
                     QueueFullException)
 from helpers import generate_mqtt_payload, is_valid_cron
 from models.device import Device as DeviceModel
-from models.device import DeviceMode, DeviceStatus
+from models.device import DeviceMode
 from repositories import Device
 from schemas.device import CreateDevice, SetModePayload
 from services import scheduler
@@ -25,7 +25,7 @@ def set_status(device: Union[str, DeviceModel], status: str, must_be_manual=True
             raise ConflictException(f"Device's status has been already {status}")
 
         mqtt_payload = generate_mqtt_payload({
-            "device_id": entity["id"],
+            "device": entity["name"],
             "status": status
         })
 

@@ -13,8 +13,8 @@ def capture(raw_payload: str):
     light = Device.find_one({"name": "Light"})
 
     if pump["mode"] == DeviceMode.AUTO:
-        humidity, temp = enviroment["humidity"], enviroment["temperature"]
-        status = DeviceStatus.ON if can_turn_on_pump(humidity, temp) else DeviceStatus.OFF
+        humidity = enviroment["humidity"]
+        status = DeviceStatus.ON if can_turn_on_pump(humidity) else DeviceStatus.OFF
         if pump["status"] != status:
             DeviceAction.set_status(pump, status, must_be_manual=False)
 

@@ -4,7 +4,7 @@ from typing import Any
 from dotenv import dotenv_values
 
 int_variables = ["PORT", "MQTT_PORT", "MQTT_KEEPALIVE"]
-bool_variables = ["MQTT_TSL"]
+bool_variables = []
 
 __config = {
     **dotenv_values(".env"),
